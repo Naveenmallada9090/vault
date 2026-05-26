@@ -2,11 +2,11 @@ import * as anchor from "@anchor-lang/core";
 import { Program} from "@anchor-lang/core";
 import { Vault } from "../target/types/vault";
 import { Commitment, LAMPORTS_PER_SOL, PublicKey, SystemProgram} from "@solana/web3.js";
-import NodeWallet from "@anchor-lang/core/dist/cjs/nodewallet";
+
 import {BN} from "bn.js";
 import { expect } from "chai";
 
-const commitement: Commitment = "confirmed";
+const commitment: Commitment = "confirmed";
 
 describe("vault", () => {
 
@@ -17,7 +17,7 @@ describe("vault", () => {
                 signature,
                 ...latestBlockhash
             },
-            commitement
+            commitment
         );
     };
 
@@ -63,7 +63,7 @@ describe("vault", () => {
 
     })
 
-    it(" Deposilt 1 Sol in to the vault", async ()=> {
+    it("Deposit 1 Sol into the vault", async () => {
       const depositAmount = 1 * LAMPORTS_PER_SOL;
 
       const initialVaultBalance = await provider.connection.getBalance(vaultPda);
@@ -76,18 +76,18 @@ describe("vault", () => {
           systemProgram: SystemProgram.programId
       })
       .rpc();
-      confirmTx(tx);
+       await confirmTx(tx);
 
       const finalBalanceVault = await provider.connection.getBalance(vaultPda);
       const finalBalanceUser = await provider.connection.getBalance(user);
 
-      expect(finalBalanceVault).to.equal(initialUserBalance + depositAmount);
+      expect(finalBalanceVault).to.equal(initialVaultBalance + depositAmount);
       expect(finalBalanceUser).to.be.lessThan(initialUserBalance - depositAmount);
 
     })
 
 
- it(" Withdraw 0.5 Sol from the vault", async ()=> {
+  it("Withdraw 0.5 Sol from the vault", async () => {
       const withdrawAmount = 0.5 * LAMPORTS_PER_SOL;
 
       const initialVaultBalance = await provider.connection.getBalance(vaultPda);
@@ -101,18 +101,18 @@ describe("vault", () => {
       })
       .rpc();
 
-      confirmTx(tx);
+      await confirmTx(tx);
 
       const finalBalanceVault = await provider.connection.getBalance(vaultPda);
       const finalBalanceUser = await provider.connection.getBalance(user);
 
-      expect(finalBalanceVault).to.equal(initialUserBalance - withdrawAmount);
+      expect(finalBalanceVault).to.equal(initialVaultBalance - withdrawAmount);
       expect(finalBalanceUser).to.be.greaterThan(initialUserBalance);
       
     })
 
 
-     it(" Close the vault and withdraw all the funds", async ()=> {
+     it("Close the vault and withdraw all the funds", async () => {
         
        const initialUserBalance = await provider.connection.getBalance(user);
 
@@ -124,7 +124,7 @@ describe("vault", () => {
       })
       .rpc();
 
-      confirmTx(tx);
+       await confirmTx(tx);
 
       expect(await provider.connection.getBalance(vaultPda)).to.equal(0);
 
